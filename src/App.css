@@ -1,0 +1,267 @@
+/* ─────────────────────────────────────────────────────────
+   Battleship — Theme & Global Styles
+   ───────────────────────────────────────────────────────── */
+
+/* ── CSS Custom Properties ─────────────────────────────── */
+
+:root {
+  --cell-size: 40px;
+  --label-size: 24px;
+}
+
+/* Dark theme (default) */
+.theme-dark {
+  --bg: #0a0e1a;
+  --bg-gradient: linear-gradient(135deg, #0a0e1a 0%, #1a1e3a 100%);
+  --text-primary: #e8eaf6;
+  --text-secondary: #9fa8da;
+  --accent: #5c6bc0;
+  --accent-bg: rgba(92, 107, 192, 0.15);
+  --accent-glow: rgba(92, 107, 192, 0.4);
+  --success: #66bb6a;
+  --danger: #ef5350;
+  --danger-bg: rgba(239, 83, 80, 0.15);
+  --panel-bg: rgba(20, 25, 50, 0.9);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --surface-bg: rgba(255, 255, 255, 0.05);
+  --cell-water: rgba(30, 60, 114, 0.6);
+  --cell-water-hover: rgba(40, 80, 140, 0.8);
+  --cell-border: rgba(255, 255, 255, 0.08);
+  --cell-ship: rgba(100, 120, 180, 0.5);
+  --cell-ship-border: rgba(100, 120, 180, 0.7);
+  --cell-hit: rgba(239, 83, 80, 0.7);
+  --cell-miss: rgba(66, 165, 245, 0.3);
+  --cell-sunk: rgba(255, 87, 34, 0.8);
+  --miss-color: rgba(100, 181, 246, 0.7);
+  --preview-valid: rgba(76, 175, 80, 0.3);
+  --preview-valid-border: rgba(76, 175, 80, 0.6);
+  --preview-invalid: rgba(244, 67, 54, 0.3);
+  --preview-invalid-border: rgba(244, 67, 54, 0.6);
+  --label-color: rgba(255, 255, 255, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Light theme */
+.theme-light {
+  --bg: #e8eaf6;
+  --bg-gradient: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+  --text-primary: #1a237e;
+  --text-secondary: #5c6bc0;
+  --accent: #3f51b5;
+  --accent-bg: rgba(63, 81, 181, 0.1);
+  --accent-glow: rgba(63, 81, 181, 0.3);
+  --success: #2e7d32;
+  --danger: #c62828;
+  --danger-bg: rgba(198, 40, 40, 0.1);
+  --panel-bg: rgba(255, 255, 255, 0.95);
+  --panel-border: rgba(0, 0, 0, 0.1);
+  --surface-bg: rgba(0, 0, 0, 0.04);
+  --cell-water: rgba(144, 202, 249, 0.5);
+  --cell-water-hover: rgba(100, 181, 246, 0.7);
+  --cell-border: rgba(0, 0, 0, 0.1);
+  --cell-ship: rgba(63, 81, 181, 0.35);
+  --cell-ship-border: rgba(63, 81, 181, 0.5);
+  --cell-hit: rgba(244, 67, 54, 0.6);
+  --cell-miss: rgba(100, 181, 246, 0.25);
+  --cell-sunk: rgba(255, 87, 34, 0.7);
+  --miss-color: rgba(33, 150, 243, 0.6);
+  --preview-valid: rgba(76, 175, 80, 0.25);
+  --preview-valid-border: rgba(76, 175, 80, 0.5);
+  --preview-invalid: rgba(244, 67, 54, 0.25);
+  --preview-invalid-border: rgba(244, 67, 54, 0.5);
+  --label-color: rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Global ────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ── App Layout ────────────────────────────────────────── */
+
+.app {
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Header */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.app-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+.title-icon {
+  font-size: 1.2rem;
+}
+
+.app-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--surface-bg);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.icon-btn:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+/* Main */
+.game-main {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Grid sections */
+.grid-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.grid-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Setup layout */
+.setup-layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Battle layout */
+.battle-layout {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.grid-divider {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  padding-top: 3rem;
+  opacity: 0.5;
+}
+
+/* Footer */
+.app-footer {
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  border-top: 1px solid var(--panel-border);
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .game-main {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .setup-layout,
+  .battle-layout {
+    gap: 1rem;
+  }
+
+  .grid-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0.5rem 1rem;
+  }
+
+  .app-title {
+    font-size: 1rem;
+  }
+
+  .app-subtitle {
+    display: none;
+  }
+
+  .game-main {
+    padding: 0.5rem;
+  }
+
+  .setup-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+}

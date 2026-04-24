@@ -1,0 +1,114 @@
+/* ─────────────────────────────────────────────────────────
+   Game HUD Styles
+   ───────────────────────────────────────────────────────── */
+
+.game-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+}
+
+/* Turn indicator */
+.turn-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.player-turn {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.enemy-turn {
+  background: var(--danger-bg);
+  color: var(--danger);
+  animation: pulse-bg 1s ease infinite;
+}
+
+.turn-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: blink 1s ease infinite;
+}
+
+/* Ship status */
+.ship-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.status-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ship-pips {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.ship-pip {
+  font-size: 0.9rem;
+  transition: all 0.3s;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,0.2));
+}
+
+.ship-pip.sunk {
+  opacity: 0.3;
+  filter: grayscale(1);
+  text-decoration: line-through;
+}
+
+.status-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.status-vs {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+/* Turn counter */
+.turn-counter {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes pulse-bg {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}

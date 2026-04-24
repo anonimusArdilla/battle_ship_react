@@ -1,0 +1,232 @@
+/* ─────────────────────────────────────────────────────────
+   Grid Styles
+   ───────────────────────────────────────────────────────── */
+
+.grid-wrapper {
+  display: inline-block;
+  user-select: none;
+}
+
+/* Labels */
+.grid-labels-row {
+  display: flex;
+  margin-left: var(--label-size);
+}
+
+.grid-corner {
+  width: var(--label-size);
+  height: var(--label-size);
+}
+
+.grid-label {
+  width: var(--cell-size);
+  height: var(--label-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--label-color);
+  text-transform: uppercase;
+}
+
+.grid-row {
+  display: flex;
+}
+
+.row-label {
+  width: var(--label-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--label-color);
+}
+
+/* Cell */
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid var(--cell-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  position: relative;
+  cursor: default;
+}
+
+.cell-interactive {
+  cursor: crosshair;
+}
+
+.cell-interactive:hover {
+  transform: scale(1.05);
+  z-index: 2;
+}
+
+/* Cell states */
+.cell-water {
+  background-color: var(--cell-water);
+}
+
+.cell-water:hover.cell-interactive {
+  background-color: var(--cell-water-hover);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.cell-ship {
+  background-color: var(--cell-ship);
+  border-color: var(--cell-ship-border);
+}
+
+.cell-hit {
+  background-color: var(--cell-hit);
+  animation: hitFlash 0.4s ease;
+}
+
+.cell-miss {
+  background-color: var(--cell-miss);
+  animation: missRipple 0.3s ease;
+}
+
+.cell-sunk {
+  background-color: var(--cell-sunk);
+  animation: sunkBurn 0.5s ease;
+}
+
+.cell-hover {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* Preview cells (setup mode) */
+.cell-preview-valid {
+  background-color: var(--preview-valid) !important;
+  border-color: var(--preview-valid-border) !important;
+}
+
+.cell-preview-invalid {
+  background-color: var(--preview-invalid) !important;
+  border-color: var(--preview-invalid-border) !important;
+}
+
+/* Ship segment styling */
+.cell-ship.ship-h {
+  border-radius: 0;
+}
+.cell-ship.ship-h.ship-start {
+  border-radius: 6px 0 0 6px;
+}
+.cell-ship.ship-h.ship-end {
+  border-radius: 0 6px 6px 0;
+}
+
+.cell-ship.ship-v {
+  border-radius: 0;
+}
+.cell-ship.ship-v.ship-start {
+  border-radius: 6px 6px 0 0;
+}
+.cell-ship.ship-v.ship-end {
+  border-radius: 0 0 6px 6px;
+}
+
+/* Markers */
+.marker {
+  font-size: 1.1rem;
+  line-height: 1;
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hit-marker {
+  filter: drop-shadow(0 0 4px rgba(255, 80, 80, 0.6));
+}
+
+.miss-marker {
+  font-size: 1.4rem;
+  color: var(--miss-color);
+  font-weight: bold;
+}
+
+.sunk-marker {
+  filter: drop-shadow(0 0 6px rgba(255, 50, 0, 0.8));
+  animation: sunkBurn 0.5s ease, pulse 1s ease infinite;
+}
+
+.ship-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* ── Animations ────────────────────────────────────────── */
+
+@keyframes hitFlash {
+  0% { background-color: #fff; transform: scale(1.15); }
+  50% { background-color: var(--cell-hit); }
+  100% { transform: scale(1); }
+}
+
+@keyframes missRipple {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sunkBurn {
+  0% { background-color: #ff6600; transform: scale(1.1); }
+  50% { background-color: #cc0000; }
+  100% { background-color: var(--cell-sunk); transform: scale(1); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .cell {
+    width: calc(var(--cell-size) * 0.8);
+    height: calc(var(--cell-size) * 0.8);
+    font-size: 0.7rem;
+  }
+  .grid-label {
+    width: calc(var(--cell-size) * 0.8);
+    font-size: 0.6rem;
+  }
+  .row-label {
+    height: calc(var(--cell-size) * 0.8);
+    font-size: 0.6rem;
+  }
+  .marker {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .cell {
+    width: calc(var(--cell-size) * 0.65);
+    height: calc(var(--cell-size) * 0.65);
+    font-size: 0.6rem;
+  }
+  .grid-label {
+    width: calc(var(--cell-size) * 0.65);
+    font-size: 0.5rem;
+  }
+  .row-label {
+    height: calc(var(--cell-size) * 0.65);
+    font-size: 0.5rem;
+  }
+  .marker {
+    font-size: 0.7rem;
+  }
+}

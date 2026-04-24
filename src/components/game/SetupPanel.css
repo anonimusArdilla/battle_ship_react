@@ -1,0 +1,196 @@
+/* ─────────────────────────────────────────────────────────
+   Setup Panel Styles
+   ───────────────────────────────────────────────────────── */
+
+.setup-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  min-width: 260px;
+}
+
+.setup-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem;
+}
+
+.setup-instruction {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  line-height: 1.4;
+}
+
+/* Ship list */
+.ship-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.ship-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: var(--surface-bg);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.ship-item.next {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.ship-item.placed {
+  opacity: 0.6;
+}
+
+.ship-item .ship-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.ship-item .ship-name {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.ship-size {
+  display: flex;
+  gap: 3px;
+}
+
+.size-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cell-border);
+  transition: background 0.2s;
+}
+
+.size-dot.filled {
+  background: var(--accent);
+}
+
+.check-mark {
+  color: var(--success);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Orientation toggle */
+.orientation-toggle {
+  margin-bottom: 1rem;
+}
+
+.orientation-toggle .label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.toggle-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.toggle-btn:hover:not(.active) {
+  background: var(--cell-water-hover);
+}
+
+/* Action buttons */
+.setup-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  padding: 0.5rem 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  flex: 1;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--panel-border);
+}
+
+.btn-secondary:hover {
+  background: var(--cell-water-hover);
+}
+
+/* Ready state */
+.setup-ready {
+  text-align: center;
+}
+
+.ready-text {
+  color: var(--success);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
+.btn-start {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  justify-content: center;
+}
+
+.setup-progress {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
