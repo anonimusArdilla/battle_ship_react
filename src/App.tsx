@@ -2,7 +2,7 @@
 // Battleship App — Main Game Board
 // ─────────────────────────────────────────────────────────
 
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { GameProvider, useGame } from './context/GameContext';
 import { Grid } from './components/game/Grid';
 import { SetupPanel } from './components/game/SetupPanel';
@@ -11,8 +11,7 @@ import { GameOver } from './components/game/GameOver';
 import { SettingsPanel } from './components/ui/SettingsPanel';
 import { useAI } from './hooks/useAI';
 import { t } from './i18n/translations';
-import { getNextShipToPlace, allShipsPlaced } from './core/validation';
-import { SHIPS, AI_DELAY_MS } from './core/constants';
+import { getNextShipToPlace } from './core/validation';
 import { resumeAudio, playHit, playMiss, playSunk } from './core/sound';
 import './App.css';
 
@@ -20,9 +19,7 @@ function GameBoard() {
   const {
     state,
     placeShip,
-    removeShip,
     playerAttack,
-    setOrientation,
   } = useGame();
   const { game, preferences, orientation } = state;
   const lang = preferences.language as any;

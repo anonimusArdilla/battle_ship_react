@@ -5,7 +5,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useGame } from '../context/GameContext';
-import { chooseAITarget, updateAIState } from '../core/ai';
+import { chooseAITarget } from '../core/ai';
 import { resolveAttack } from '../core/attack';
 import { AI_DELAY_MS } from '../core/constants';
 

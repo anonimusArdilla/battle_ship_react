@@ -8,7 +8,6 @@ import type {
   GameState, Position, Orientation,
   ShipDefinition, Difficulty, AttackEvent, Board, UserPreferences, GameStats,
 } from '../core/models';
-import { SHIPS, AI_DELAY_MS } from '../core/constants';
 import { createBoard, createPlacedShip, placeShipOnGrid } from '../core/grid';
 import { validatePlacement, allShipsPlaced } from '../core/validation';
 import { resolveAttack, allShipsSunk } from '../core/attack';
