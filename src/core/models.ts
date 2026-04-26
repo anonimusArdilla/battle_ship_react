@@ -27,6 +27,12 @@ export type GamePhase =
 /** Difficulty levels */
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
+/** Game modes */
+export type GameMode = 'ai' | 'online';
+
+/** Online connection states */
+export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
+
 /** Coordinates on the grid */
 export interface Position {
   row: number;
@@ -87,6 +93,15 @@ export interface GameState {
   attackHistory: AttackEvent[];
   turnCount: number;
   difficulty: Difficulty;
+  mode: GameMode;
+}
+
+/** Online state for the current session */
+export interface OnlineState {
+  connectionStatus: ConnectionStatus;
+  localRole: 'host' | 'guest' | null;
+  localReady: boolean;
+  remoteReady: boolean;
 }
 
 /** User preferences stored in localStorage */
@@ -95,6 +110,7 @@ export interface UserPreferences {
   language: string;
   difficulty: Difficulty;
   soundEnabled: boolean;
+  gameMode: GameMode;
 }
 
 /** Game statistics */

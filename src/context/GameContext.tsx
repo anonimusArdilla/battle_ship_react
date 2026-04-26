@@ -7,9 +7,11 @@ import React, { createContext, useContext, useReducer, useCallback } from 'react
 import type {
   GameState, Position, Orientation,
   ShipDefinition, Difficulty, AttackEvent, Board, UserPreferences, GameStats,
+  GameMode, ConnectionStatus, OnlineState, PlayerId,
 } from '../core/models';
 import { createBoard, createPlacedShip, placeShipOnGrid } from '../core/grid';
 import { validatePlacement, allShipsPlaced } from '../core/validation';
+import { useOnline } from '../hooks/useOnline';
 import { resolveAttack, allShipsSunk } from '../core/attack';
 import { createAIState, updateAIState } from '../core/ai';
 import type { AIState } from '../core/models';
@@ -29,12 +31,19 @@ type GameAction =
   | { type: 'RANDOMIZE_PLAYER_SHIPS' }
   | { type: 'CLEAR_PLAYER_SHIPS' }
   | { type: 'START_GAME' }
+  | { type: 'START_ONLINE_GAME'; startingPlayer: PlayerId }
   | { type: 'PLAYER_ATTACK'; position: Position }
   | { type: 'AI_ATTACK_RESULT'; position: Position; result: 'hit' | 'miss' | 'sunk'; board: Board }
+  | { type: 'ONLINE_ATTACK_RESULT'; board: Board; event: AttackEvent; winner: PlayerId | null }
+  | { type: 'RECEIVE_ONLINE_ATTACK'; board: Board; event: AttackEvent; winner: PlayerId | null }
   | { type: 'SET_DIFFICULTY'; difficulty: Difficulty }
   | { type: 'SET_THEME'; theme: 'light' | 'dark' }
   | { type: 'SET_LANGUAGE'; language: LangCode }
   | { type: 'SET_SOUND'; enabled: boolean }
+  | { type: 'SET_GAME_MODE'; mode: GameMode }
+  | { type: 'SET_ONLINE_STATUS'; status: ConnectionStatus; localRole: 'host' | 'guest' | null }
+  | { type: 'SET_LOCAL_READY'; ready: boolean }
+  | { type: 'SET_REMOTE_READY'; ready: boolean }
   | { type: 'RESTART' }
   | { type: 'SET_ORIENTATION'; orientation: Orientation }
   | { type: 'SET_ATTACKING'; attacking: boolean };
@@ -49,6 +58,7 @@ export interface GameContextState {
   orientation: Orientation;
   isAttacking: boolean;       // animation lock
   lastAttackEvent: AttackEvent | null;
+  online: OnlineState;
 }
 
 // ── Initial State ────────────────────────────────────────
@@ -67,6 +77,7 @@ function createInitialState(): GameContextState {
       attackHistory: [],
       turnCount: 0,
       difficulty: prefs.difficulty,
+      mode: prefs.gameMode,
     },
     aiState: createAIState(),
     preferences: prefs,
@@ -74,6 +85,12 @@ function createInitialState(): GameContextState {
     orientation: 'horizontal',
     isAttacking: false,
     lastAttackEvent: null,
+    online: {
+      connectionStatus: 'disconnected',
+      localRole: null,
+      localReady: false,
+      remoteReady: false,
+    },
   };
 }
 
@@ -158,6 +175,16 @@ function gameReducer(state: GameContextState, action: GameAction): GameContextSt
 
     case 'START_GAME': {
       if (!allShipsPlaced(state.game.playerBoard)) return state;
+      if (state.game.mode === 'online') {
+        return {
+          ...state,
+          game: {
+            ...state.game,
+            phase: 'playing',
+            currentPlayer: state.online.localRole === 'host' ? 'player' : 'enemy',
+          },
+        };
+      }
       const enemyBoard = placeAllShipsRandomly();
       return {
         ...state,
@@ -168,6 +195,18 @@ function gameReducer(state: GameContextState, action: GameAction): GameContextSt
           enemyBoard,
         },
         aiState: createAIState(),
+      };
+    }
+
+    case 'START_ONLINE_GAME': {
+      if (!allShipsPlaced(state.game.playerBoard)) return state;
+      return {
+        ...state,
+        game: {
+          ...state.game,
+          phase: 'playing',
+          currentPlayer: action.startingPlayer,
+        },
       };
     }
 
@@ -233,7 +272,7 @@ function gameReducer(state: GameContextState, action: GameAction): GameContextSt
       if (result === 'sunk') playSunk(); else if (result === 'hit') playHit(); else playMiss();
 
       const newHistory = [...state.game.attackHistory, event];
-      const newAiState = updateAIState(state.aiState, position, result, state.game.difficulty);
+      const newAiState = updateAIState(state.aiState, position, result);
 
       if (allShipsSunk(board)) {
         recordLoss();
@@ -268,6 +307,44 @@ function gameReducer(state: GameContextState, action: GameAction): GameContextSt
       };
     }
 
+    case 'ONLINE_ATTACK_RESULT': {
+      const { board, event, winner } = action;
+      const newTurn = state.game.turnCount + 1;
+      const nextState = {
+        ...state,
+        game: {
+          ...state.game,
+          enemyBoard: board,
+          attackHistory: [...state.game.attackHistory, event],
+          turnCount: newTurn,
+          currentPlayer: winner ? state.game.currentPlayer : 'enemy',
+          phase: winner ? 'gameover' : 'playing',
+          winner: winner ?? null,
+        },
+        isAttacking: false,
+        lastAttackEvent: event,
+      } as GameContextState;
+
+      return nextState;
+    }
+
+    case 'RECEIVE_ONLINE_ATTACK': {
+      const { board, event, winner } = action;
+      return {
+        ...state,
+        game: {
+          ...state.game,
+          playerBoard: board,
+          attackHistory: [...state.game.attackHistory, event],
+          currentPlayer: winner ? 'enemy' : 'player',
+          phase: winner ? 'gameover' : 'playing',
+          winner: winner ?? null,
+        },
+        isAttacking: false,
+        lastAttackEvent: event,
+      };
+    }
+
     case 'SET_ORIENTATION':
       return { ...state, orientation: action.orientation };
 
@@ -280,6 +357,52 @@ function gameReducer(state: GameContextState, action: GameAction): GameContextSt
         ...state,
         preferences: { ...state.preferences, difficulty: action.difficulty },
         game: { ...state.game, difficulty: action.difficulty },
+      };
+    }
+
+    case 'SET_GAME_MODE': {
+      savePreferences({ gameMode: action.mode });
+      return {
+        ...state,
+        preferences: { ...state.preferences, gameMode: action.mode },
+        game: { ...state.game, mode: action.mode },
+        online: {
+          connectionStatus: 'disconnected',
+          localRole: null,
+          localReady: false,
+          remoteReady: false,
+        },
+      };
+    }
+
+    case 'SET_ONLINE_STATUS': {
+      return {
+        ...state,
+        online: {
+          ...state.online,
+          connectionStatus: action.status,
+          localRole: action.localRole,
+        },
+      };
+    }
+
+    case 'SET_LOCAL_READY': {
+      return {
+        ...state,
+        online: {
+          ...state.online,
+          localReady: action.ready,
+        },
+      };
+    }
+
+    case 'SET_REMOTE_READY': {
+      return {
+        ...state,
+        online: {
+          ...state.online,
+          remoteReady: action.ready,
+        },
       };
     }
 
@@ -339,7 +462,21 @@ interface GameContextValue {
   setLanguage: (language: LangCode) => void;
   setSound: (enabled: boolean) => void;
   setDifficulty: (difficulty: Difficulty) => void;
+  setGameMode: (mode: GameMode) => void;
   restart: () => void;
+  online: {
+    connectionState: ConnectionStatus;
+    role: 'host' | 'guest' | null;
+    sessionId: string;
+    localReady: boolean;
+    remoteReady: boolean;
+    error: string | null;
+    createSession: () => Promise<void>;
+    joinSession: (sessionId: string) => Promise<void>;
+    sendReady: () => void;
+    sendAttack: (position: Position) => void;
+    disconnect: () => void;
+  };
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -348,6 +485,12 @@ const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, null, createInitialState);
+  const onlineApi = useOnline({
+    gameMode: state.preferences.gameMode,
+    game: state.game,
+    isAttacking: state.isAttacking,
+    dispatch,
+  });
 
   const placeShip = useCallback((startPos: Position, orientation: Orientation, ship: ShipDefinition) => {
     resumeAudio();
@@ -400,6 +543,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_DIFFICULTY', difficulty });
   }, []);
 
+  const setGameMode = useCallback((mode: GameMode) => {
+    dispatch({ type: 'SET_GAME_MODE', mode });
+  }, []);
+
   const restart = useCallback(() => {
     dispatch({ type: 'RESTART' });
   }, []);
@@ -418,7 +565,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setLanguage,
     setSound,
     setDifficulty,
+    setGameMode,
     restart,
+    online: {
+      connectionState: onlineApi.connectionState,
+      role: onlineApi.role,
+      sessionId: onlineApi.sessionId,
+      localReady: onlineApi.localReady,
+      remoteReady: onlineApi.remoteReady,
+      error: onlineApi.error,
+      createSession: onlineApi.createSession,
+      joinSession: onlineApi.joinSession,
+      sendReady: onlineApi.sendReady,
+      sendAttack: onlineApi.sendAttack,
+      disconnect: onlineApi.disconnect,
+    },
   };
 
   return React.createElement(GameContext.Provider, { value }, children);

@@ -3,7 +3,6 @@
 // Status bar, turn indicator, and ship tracker during play
 // ─────────────────────────────────────────────────────────
 
-import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { t } from '../../i18n/translations';
 import { countRemainingShips } from '../../core/attack';
@@ -18,7 +17,9 @@ export function GameHUD() {
   if (game.phase !== 'playing' && game.phase !== 'gameover') return null;
 
   const playerRemaining = countRemainingShips(game.playerBoard);
-  const enemyRemaining = countRemainingShips(game.enemyBoard);
+  const enemyRemaining = game.enemyBoard.ships.length > 0
+    ? countRemainingShips(game.enemyBoard)
+    : null;
   const isPlayerTurn = game.currentPlayer === 'player';
 
   return (
@@ -74,7 +75,11 @@ export function GameHUD() {
               );
             })}
           </div>
-          <span className="status-count">{enemyRemaining}/{SHIPS.length}</span>
+          <span className="status-count">
+            {enemyRemaining !== null
+              ? `${enemyRemaining}/${SHIPS.length}`
+              : t('online.enemyUnknown', lang)}
+          </span>
         </div>
       </div>
 

@@ -3,11 +3,11 @@
 // Ship placement controls during setup phase
 // ─────────────────────────────────────────────────────────
 
-import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { SHIPS } from '../../core/constants';
 import { t } from '../../i18n/translations';
 import { allShipsPlaced, getNextShipToPlace } from '../../core/validation';
+import { OnlinePanel } from '../ui/OnlinePanel';
 import './SetupPanel.css';
 
 export function SetupPanel() {
@@ -76,8 +76,10 @@ export function SetupPanel() {
         </button>
       </div>
 
+      {state.preferences.gameMode === 'online' && <OnlinePanel />}
+
       {/* Status / Start */}
-      {placed ? (
+      {state.preferences.gameMode !== 'online' && (placed ? (
         <div className="setup-ready">
           <p className="ready-text">{t('setup.allPlaced', lang)}</p>
           <button className="btn btn-primary btn-start" onClick={startGame}>
@@ -88,7 +90,7 @@ export function SetupPanel() {
         <p className="setup-progress">
           {t('setup.shipNext', lang, { ship: nextShip ? t(nextShip.name, lang) : '' })}
         </p>
-      )}
+      ))}
     </div>
   );
 }

@@ -158,3 +158,79 @@
   width: 100%;
   justify-content: center;
 }
+
+/* Online panel */
+.online-panel .setting-text {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  padding: 0.5rem;
+  background: var(--surface-bg);
+  border-radius: 6px;
+}
+
+.session-code {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  background: var(--surface-bg);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 2px solid var(--accent);
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+.settings-input {
+  padding: 0.65rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+}
+
+.settings-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings-textarea {
+  padding: 0.65rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+  resize: none;
+  transition: all 0.15s;
+}
+
+.settings-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.settings-textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.setting-error {
+  padding: 0.65rem;
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}

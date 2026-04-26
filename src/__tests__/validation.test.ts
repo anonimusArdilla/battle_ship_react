@@ -6,7 +6,6 @@ import { describe, it, expect } from 'vitest';
 import { validatePlacement, allShipsPlaced, getNextShipToPlace } from '../core/validation';
 import { createBoard, createPlacedShip, placeShipOnGrid } from '../core/grid';
 import { SHIPS } from '../core/constants';
-import type { Orientation } from '../core/models';
 
 describe('validatePlacement', () => {
   it('should accept valid horizontal placement', () => {

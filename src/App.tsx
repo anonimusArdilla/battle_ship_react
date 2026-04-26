@@ -12,7 +12,7 @@ import { SettingsPanel } from './components/ui/SettingsPanel';
 import { useAI } from './hooks/useAI';
 import { t } from './i18n/translations';
 import { getNextShipToPlace } from './core/validation';
-import { resumeAudio, playHit, playMiss, playSunk } from './core/sound';
+import { resumeAudio, playShot, playHit, playMiss, playSunk } from './core/sound';
 import './App.css';
 
 function GameBoard() {
@@ -20,6 +20,7 @@ function GameBoard() {
     state,
     placeShip,
     playerAttack,
+    online,
   } = useGame();
   const { game, preferences, orientation } = state;
   const lang = preferences.language as any;
@@ -44,6 +45,17 @@ function GameBoard() {
     if (game.phase !== 'playing' || game.currentPlayer !== 'player') return;
     if (state.isAttacking) return;
 
+    if (state.preferences.gameMode === 'online') {
+      if (state.online.connectionStatus !== 'connected') return;
+      const cell = game.enemyBoard.grid[pos.row][pos.col];
+      if (cell.state !== 'empty' && cell.state !== 'ship') return;
+
+      resumeAudio();
+      playShot();
+      online.sendAttack(pos);
+      return;
+    }
+
     // Don't attack already-attacked cells
     const cell = game.enemyBoard.grid[pos.row][pos.col];
     if (cell.state !== 'empty' && cell.state !== 'ship') return;
@@ -57,7 +69,7 @@ function GameBoard() {
       else if (newCell?.state === 'miss') playMiss();
       else if (newCell?.state === 'sunk') playSunk();
     }, 100);
-  }, [game.phase, game.currentPlayer, game.enemyBoard, state.isAttacking, playerAttack]);
+  }, [game.phase, game.currentPlayer, game.enemyBoard, state.isAttacking, playerAttack, online, state.preferences.gameMode, state.online.connectionStatus]);
 
   const nextShip = game.phase === 'setup' ? getNextShipToPlace(game.playerBoard) : null;
 
@@ -128,7 +140,12 @@ function GameBoard() {
                   isOwner={false}
                   showShips={game.phase === 'gameover'}
                   onCellClick={handleEnemyGridClick}
-                  interactive={game.phase === 'playing' && game.currentPlayer === 'player' && !state.isAttacking}
+                  interactive={
+                    game.phase === 'playing' &&
+                    game.currentPlayer === 'player' &&
+                    !state.isAttacking &&
+                    (state.preferences.gameMode === 'ai' || state.online.connectionStatus === 'connected')
+                  }
                 />
               </div>
             </div>

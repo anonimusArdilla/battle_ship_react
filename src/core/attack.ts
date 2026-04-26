@@ -3,7 +3,7 @@
 // Pure functions for resolving attacks
 // ─────────────────────────────────────────────────────────
 
-import type { Board, Position, AttackResult, PlacedShip, AttackEvent, PlayerId } from './models';
+import type { Board, Position, AttackResult, AttackEvent, PlayerId } from './models';
 import { posKey, cloneBoard } from './grid';
 
 /** Resolve an attack on a board. Returns [updatedBoard, result, sunkShipId?] */

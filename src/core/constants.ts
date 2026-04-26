@@ -32,10 +32,12 @@ export const AI_CONFIG = {
   easy: {
     huntProbability: 0.7,     // chance of random shot even in target mode
     targetDepth: 2,           // how many adjacent cells to check
+    useParity: false,
   },
   medium: {
     huntProbability: 0.0,
     targetDepth: 4,
+    useParity: false,
   },
   hard: {
     huntProbability: 0.0,

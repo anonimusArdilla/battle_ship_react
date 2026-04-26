@@ -3,13 +3,11 @@
 // Renders a 10x10 battleship grid with labels
 // ─────────────────────────────────────────────────────────
 
-import React, { useState, useCallback } from 'react';
-import type { Position, Orientation, ShipDefinition, Board, CellState } from '../../core/models';
+import { useMemo, useState, useCallback } from 'react';
+import type { Position, Orientation, ShipDefinition, Board } from '../../core/models';
 import { GRID_SIZE, COL_LABELS, ROW_LABELS } from '../../core/constants';
-import { posKey, isInBounds, getShipPositions } from '../../core/grid';
+import { isInBounds, getShipPositions } from '../../core/grid';
 import { validatePlacement } from '../../core/validation';
-import { useGame } from '../../context/GameContext';
-import { t } from '../../i18n/translations';
 import './Grid.css';
 
 interface GridProps {
@@ -26,7 +24,6 @@ interface GridProps {
 
 export function Grid({
   board,
-  isOwner,
   showShips,
   onCellClick,
   interactive,
@@ -34,12 +31,10 @@ export function Grid({
   currentShip,
   orientation,
 }: GridProps) {
-  const { state } = useGame();
-  const lang = state.preferences.language as any;
   const [hoverPos, setHoverPos] = useState<Position | null>(null);
 
   // Compute preview positions for setup mode
-  const previewPositions = React.useMemo(() => {
+  const previewPositions = useMemo(() => {
     if (!setupMode || !currentShip || !hoverPos) return { valid: false, positions: [] as Position[] };
     const positions = getShipPositions(hoverPos, currentShip.size, orientation || 'horizontal');
     const allInBounds = positions.every(isInBounds);
@@ -64,7 +59,6 @@ export function Grid({
 
   const getCellClass = (row: number, col: number): string => {
     const cell = board.grid[row][col];
-    const pos = { row, col };
     const classes = ['cell'];
 
     // Base state

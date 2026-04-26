@@ -3,7 +3,7 @@
 // Pure functions for validating ship placements
 // ─────────────────────────────────────────────────────────
 
-import type { Position, Orientation, PlacedShip, PlacementValidation, Board } from './models';
+import type { Position, Orientation, PlacementValidation, Board } from './models';
 import { GRID_SIZE, SHIPS } from './constants';
 import { getShipPositions, isInBounds, posKey } from './grid';
 

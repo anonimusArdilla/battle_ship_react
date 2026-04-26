@@ -3,11 +3,10 @@
 // Theme, language, difficulty, sound controls
 // ─────────────────────────────────────────────────────────
 
-import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { t } from '../../i18n/translations';
 import { LANGUAGES, type LangCode } from '../../i18n/translations';
-import type { Difficulty } from '../../core/models';
+import type { Difficulty, GameMode } from '../../core/models';
 import './SettingsPanel.css';
 
 interface SettingsPanelProps {
@@ -16,7 +15,7 @@ interface SettingsPanelProps {
 }
 
 export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
-  const { state, setTheme, setLanguage, setSound, setDifficulty, restart } = useGame();
+  const { state, setTheme, setLanguage, setSound, setDifficulty, setGameMode, restart } = useGame();
   const { preferences } = state;
   const lang = preferences.language as LangCode;
 
@@ -63,6 +62,22 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   onClick={() => setLanguage(code)}
                 >
                   {LANGUAGES[code].flag} {LANGUAGES[code].name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Game mode */}
+          <div className="setting-group">
+            <label className="setting-label">🎮 {t('settings.mode', lang)}</label>
+            <div className="setting-options">
+              {(['ai', 'online'] as GameMode[]).map(mode => (
+                <button
+                  key={mode}
+                  className={`option-btn ${preferences.gameMode === mode ? 'active' : ''}`}
+                  onClick={() => setGameMode(mode)}
+                >
+                  {t(`settings.${mode}`, lang)}
                 </button>
               ))}
             </div>

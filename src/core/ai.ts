@@ -156,8 +156,7 @@ export function chooseAITarget(
 export function updateAIState(
   aiState: AIState,
   target: Position,
-  result: AttackResult,
-  difficulty: Difficulty
+  result: AttackResult
 ): AIState {
   const newState = {
     ...aiState,

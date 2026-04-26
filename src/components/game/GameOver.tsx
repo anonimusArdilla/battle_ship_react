@@ -3,7 +3,6 @@
 // Victory/defeat screen with stats
 // ─────────────────────────────────────────────────────────
 
-import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { t } from '../../i18n/translations';
 import './GameOver.css';

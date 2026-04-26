@@ -14,8 +14,8 @@ export function useAI() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Only act when it's AI's turn
-    if (state.game.phase !== 'playing' || state.game.currentPlayer !== 'enemy') {
+    // Only act when AI mode is selected and it's the AI's turn
+    if (state.preferences.gameMode !== 'ai' || state.game.phase !== 'playing' || state.game.currentPlayer !== 'enemy') {
       return;
     }
 

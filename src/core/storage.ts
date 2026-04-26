@@ -3,7 +3,7 @@
 // Type-safe wrapper around localStorage
 // ─────────────────────────────────────────────────────────
 
-import type { UserPreferences, GameStats, Difficulty } from './models';
+import type { UserPreferences, GameStats } from './models';
 import { STORAGE_KEYS } from './constants';
 
 function safeGet<T>(key: string, fallback: T): T {
@@ -31,6 +31,7 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   language: 'en',
   difficulty: 'medium',
   soundEnabled: true,
+  gameMode: 'ai',
 };
 
 export function getPreferences(): UserPreferences {
