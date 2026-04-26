@@ -91,8 +91,8 @@ const translations: Record<LangCode, TranslationKeys> = {
     'online.shareCode': 'Share this code with your opponent',
     'online.joinCode': 'Join Code',
     'online.connecting': 'Connecting...',    'online.readyButton': 'I’m ready',
-    'online.enemyUnknown': 'Unknown',
-    // Stats
+    'online.enemyUnknown': 'Unknown',    'online.bothReady': 'Both players ready! Game starting...',
+    'online.waitingForOpponent': 'Waiting for opponent to be ready...',    // Stats
     'stats.title': 'Statistics',
     'stats.wins': 'Wins',
     'stats.losses': 'Losses',
@@ -175,6 +175,8 @@ const translations: Record<LangCode, TranslationKeys> = {
     'online.connecting': 'Conectando...',
     'online.readyButton': 'Estoy listo',
     'online.enemyUnknown': 'Desconocido',
+    'online.bothReady': '¡Ambos jugadores listos! El juego comienza...',
+    'online.waitingForOpponent': 'Esperando a que el oponente esté listo...',
     'stats.title': 'Estadísticas',
     'stats.wins': 'Victorias',
     'stats.losses': 'Derrotas',

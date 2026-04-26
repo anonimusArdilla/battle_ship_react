@@ -46,7 +46,7 @@ function GameBoard() {
     if (state.isAttacking) return;
 
     if (state.preferences.gameMode === 'online') {
-      if (state.online.connectionStatus !== 'connected') return;
+      if (online.connectionState !== 'connected') return;
       const cell = game.enemyBoard.grid[pos.row][pos.col];
       if (cell.state !== 'empty' && cell.state !== 'ship') return;
 
@@ -69,7 +69,7 @@ function GameBoard() {
       else if (newCell?.state === 'miss') playMiss();
       else if (newCell?.state === 'sunk') playSunk();
     }, 100);
-  }, [game.phase, game.currentPlayer, game.enemyBoard, state.isAttacking, playerAttack, online, state.preferences.gameMode, state.online.connectionStatus]);
+  }, [game.phase, game.currentPlayer, game.enemyBoard, state.isAttacking, playerAttack, online, state.preferences.gameMode, online.connectionState]);
 
   const nextShip = game.phase === 'setup' ? getNextShipToPlace(game.playerBoard) : null;
 
@@ -144,7 +144,7 @@ function GameBoard() {
                     game.phase === 'playing' &&
                     game.currentPlayer === 'player' &&
                     !state.isAttacking &&
-                    (state.preferences.gameMode === 'ai' || state.online.connectionStatus === 'connected')
+                    (state.preferences.gameMode === 'ai' || online.connectionState === 'connected')
                   }
                 />
               </div>

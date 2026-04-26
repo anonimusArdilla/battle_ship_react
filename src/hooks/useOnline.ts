@@ -34,6 +34,9 @@ interface UseOnlineParams {
 export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlineParams): OnlineApi {
   const sessionRef = useRef<RemoteOnlineSession | null>(null);
   const stateRef = useRef<GameState>(game);
+  const roleRef = useRef<'host' | 'guest' | null>(null);
+  const localReadyRef = useRef(false);
+  const remoteReadyRef = useRef(false);
   const [connectionState, setConnectionState] = useState<ConnectionStatus>('disconnected');
   const [role, setRole] = useState<'host' | 'guest' | null>(null);
   const [sessionId, setSessionId] = useState('');
@@ -66,12 +69,24 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     };
   }, []);
 
+  useEffect(() => {
+    roleRef.current = role;
+  }, [role]);
+
+  useEffect(() => {
+    localReadyRef.current = localReady;
+  }, [localReady]);
+
+  useEffect(() => {
+    remoteReadyRef.current = remoteReady;
+  }, [remoteReady]);
+
   const handleRemoteMessage = useCallback((message: OnlineMessage) => {
     if (message.type === 'ready') {
       setRemoteReady(true);
-      if (role === 'host' && localReady) {
+      if (roleRef.current === 'host' && localReadyRef.current) {
         const startingPlayer: PlayerId = 'player';
-        sessionRef.current?.sendMessage({ type: 'start', payload: { startingPlayer } });
+        sessionRef.current?.sendMessage({ type: 'start', payload: { startingPlayer: 'enemy' } });
         dispatch({ type: 'START_ONLINE_GAME', startingPlayer });
       }
       return;
@@ -157,8 +172,18 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
         },
         onRemoteMessage: handleRemoteMessage,
       });
+    } else {
+      // Update the callback if state changed
+      sessionRef.current.setRemoteMessageHandler(handleRemoteMessage);
     }
     return sessionRef.current;
+  }, [handleRemoteMessage]);
+
+  // Ensure handler is always up-to-date whenever state changes
+  useEffect(() => {
+    if (sessionRef.current) {
+      sessionRef.current.setRemoteMessageHandler(handleRemoteMessage);
+    }
   }, [handleRemoteMessage]);
 
   const createSession = useCallback(async () => {
@@ -190,7 +215,13 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     if (connectionState !== 'connected') return;
     setLocalReady(true);
     sessionRef.current?.sendMessage({ type: 'ready' });
-  }, [connectionState]);
+
+    if (roleRef.current === 'host' && remoteReadyRef.current) {
+      const startingPlayer: PlayerId = 'player';
+      sessionRef.current?.sendMessage({ type: 'start', payload: { startingPlayer: 'enemy' } });
+      dispatch({ type: 'START_ONLINE_GAME', startingPlayer });
+    }
+  }, [connectionState, dispatch]);
 
   const sendAttack = useCallback((position: Position) => {
     if (game.phase !== 'playing' || game.currentPlayer !== 'player' || isAttacking) return;

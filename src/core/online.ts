@@ -59,9 +59,21 @@ export class OnlineSession {
   private getServerUrl(): string {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.hostname;
-    // In development, server runs on port 3001
-    const port = host === 'localhost' ? '3001' : window.location.port;
-    return `${protocol}//${host}:${port}`;
+    
+    // Handle localhost
+    if (host === 'localhost') {
+      return `${protocol}//localhost:3001`;
+    }
+    
+    // Handle GitHub Codespaces (e.g., name-3002.app.github.dev -> name-3001.app.github.dev)
+    if (host.includes('app.github.dev')) {
+      const hostWithPort = host.replace(/-\d+\.app\.github\.dev/, '-3001.app.github.dev');
+      return `${protocol}//${hostWithPort}`;
+    }
+    
+    // Default: use current port
+    const port = window.location.port ? `:${window.location.port}` : '';
+    return `${protocol}//${host}${port}`;
   }
 
   async createSession(): Promise<string> {
@@ -172,6 +184,10 @@ export class OnlineSession {
   sendMessage(message: OnlineMessage): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
     this.ws.send(JSON.stringify(message));
+  }
+
+  setRemoteMessageHandler(handler: (message: OnlineMessage) => void): void {
+    this.options.onRemoteMessage = handler;
   }
 
   dispose(): void {

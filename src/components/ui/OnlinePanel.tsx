@@ -27,6 +27,8 @@ export function OnlinePanel() {
     }
   };
 
+  const gameStarting = online.localReady && online.remoteReady;
+  
   return (
     <div className="settings-group online-panel">
       <h3>{t('online.title', lang)}</h3>
@@ -42,6 +44,16 @@ export function OnlinePanel() {
             remote: online.remoteReady ? t('online.ready', lang) : t('online.notReady', lang),
           })}
         </div>
+        {gameStarting && (
+          <div className="status-message status-success">
+            ✈️ {t('online.bothReady', lang) || 'Game starting...'}
+          </div>
+        )}
+        {online.localReady && !online.remoteReady && online.connectionState === 'connected' && (
+          <div className="status-message status-waiting">
+            ⏳ {t('online.waitingForOpponent', lang) || 'Waiting for opponent...'}
+          </div>
+        )}
       </div>
 
       {!online.sessionId && (
