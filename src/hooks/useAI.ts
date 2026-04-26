@@ -47,5 +47,5 @@ export function useAI() {
         timerRef.current = null;
       }
     };
-  }, [state.game.phase, state.game.currentPlayer, state.isAttacking]);
+  }, [state.game.phase, state.game.currentPlayer, state.isAttacking, dispatch, state]);
 }

@@ -8,6 +8,7 @@ import type { GameState, Position, GameMode, ConnectionStatus, PlayerId } from '
 import type { OnlineSession as RemoteOnlineSession, OnlineMessage } from '../core/online';
 import { OnlineSession } from '../core/online';
 import { resolveAttack, allShipsSunk } from '../core/attack';
+import type { GameAction } from '../context/GameContext';
 
 export interface OnlineApi {
   connectionState: ConnectionStatus;
@@ -27,7 +28,7 @@ interface UseOnlineParams {
   gameMode: GameMode;
   game: GameState;
   isAttacking: boolean;
-  dispatch: React.Dispatch<any>;
+  dispatch: React.Dispatch<GameAction>;
 }
 
 export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlineParams): OnlineApi {
@@ -48,6 +49,7 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     if (gameMode !== 'online') {
       sessionRef.current?.dispose();
       sessionRef.current = null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setConnectionState('disconnected');
       setRole(null);
       setSessionId('');
@@ -76,7 +78,7 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     }
 
     if (message.type === 'start') {
-      dispatch({ type: 'START_ONLINE_GAME', startingPlayer: (message as any).payload.startingPlayer });
+      dispatch({ type: 'START_ONLINE_GAME', startingPlayer: message.payload.startingPlayer });
       return;
     }
 
@@ -84,7 +86,7 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
       const currentState = stateRef.current;
       if (currentState.phase !== 'playing') return;
 
-      const result = resolveAttack(currentState.playerBoard, (message as any).payload, 'enemy');
+      const result = resolveAttack(currentState.playerBoard, message.payload, 'enemy');
       const winner = allShipsSunk(result.board) ? 'enemy' : null;
       dispatch({
         type: 'RECEIVE_ONLINE_ATTACK',
@@ -96,8 +98,8 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
       sessionRef.current?.sendMessage({
         type: 'attackResult',
         payload: {
-          row: (message as any).payload.row,
-          col: (message as any).payload.col,
+          row: message.payload.row,
+          col: message.payload.col,
           result: result.result,
           shipId: result.sunkShipId,
           winner: winner ?? undefined,
@@ -107,7 +109,7 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     }
 
     if (message.type === 'attackResult') {
-      const payload = (message as any).payload;
+      const payload = message.payload;
       const currentEnemyBoard = stateRef.current.enemyBoard;
       const boardUpdate = { ...currentEnemyBoard, grid: currentEnemyBoard.grid.map(row => row.map(cell => ({ ...cell }))), shotsReceived: new Set(currentEnemyBoard.shotsReceived) };
       const key = `${payload.row},${payload.col}`;
@@ -163,9 +165,12 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     try {
       const session = ensureSession();
       setError(null);
+      console.log('Creating session...');
       const sid = await session.createSession();
+      console.log('Session created with ID:', sid);
       setSessionId(sid);
     } catch (err) {
+      console.error('Failed to create session:', err);
       setError((err as Error).message);
     }
   }, [ensureSession]);

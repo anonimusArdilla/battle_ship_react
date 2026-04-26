@@ -3,6 +3,8 @@
 // All types and interfaces for the game domain
 // ─────────────────────────────────────────────────────────
 
+import type { LangCode } from '../i18n/translations';
+
 /** Unique identifier for a ship */
 export type ShipId = string;
 
@@ -107,7 +109,7 @@ export interface OnlineState {
 /** User preferences stored in localStorage */
 export interface UserPreferences {
   theme: 'light' | 'dark';
-  language: string;
+  language: LangCode;
   difficulty: Difficulty;
   soundEnabled: boolean;
   gameMode: GameMode;

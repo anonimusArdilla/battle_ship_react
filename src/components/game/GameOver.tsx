@@ -10,7 +10,7 @@ import './GameOver.css';
 export function GameOver() {
   const { state, restart } = useGame();
   const { game } = state;
-  const lang = state.preferences.language as any;
+  const lang = state.preferences.language;
 
   if (game.phase !== 'gameover') return null;
 

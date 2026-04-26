@@ -25,7 +25,7 @@ import {
 
 // ── Actions ──────────────────────────────────────────────
 
-type GameAction =
+export type GameAction =
   | { type: 'PLACE_SHIP'; startPos: Position; orientation: Orientation; ship: ShipDefinition }
   | { type: 'REMOVE_SHIP'; shipId: string }
   | { type: 'RANDOMIZE_PLAYER_SHIPS' }
@@ -585,6 +585,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   return React.createElement(GameContext.Provider, { value }, children);
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useGame(): GameContextValue {
   const ctx = useContext(GameContext);
   if (!ctx) throw new Error('useGame must be used within GameProvider');

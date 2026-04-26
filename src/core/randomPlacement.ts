@@ -2,7 +2,7 @@
 // Random Ship Placement (for AI and quick-start)
 // ─────────────────────────────────────────────────────────
 
-import type { Board, Orientation, PlacedShip, ShipDefinition } from './models';
+import type { Board, Orientation, ShipDefinition } from './models';
 import { GRID_SIZE, SHIPS } from './constants';
 import { createPlacedShip, placeShipOnGrid, createBoard } from './grid';
 import { validatePlacement } from './validation';

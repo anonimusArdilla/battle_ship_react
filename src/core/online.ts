@@ -26,7 +26,9 @@ export type OnlineMessage =
   | { type: 'attack'; payload: OnlineAttackPayload }
   | { type: 'attackResult'; payload: OnlineAttackResultPayload }
   | { type: 'opponentDisconnected' }
-  | { type: 'error'; message: string };
+  | { type: 'error'; message: string }
+  | { type: 'sessionCreated'; sessionId: string }
+  | { type: 'sessionReady' };
 
 export interface OnlineSessionOptions {
   onConnectionStateChange: (status: ConnectionStatus, role: 'host' | 'guest' | null) => void;
@@ -57,7 +59,8 @@ export class OnlineSession {
   private getServerUrl(): string {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.hostname;
-    const port = window.location.port === '5173' ? '3001' : window.location.port;
+    // In development, server runs on port 3001
+    const port = host === 'localhost' ? '3001' : window.location.port;
     return `${protocol}//${host}:${port}`;
   }
 
@@ -66,10 +69,15 @@ export class OnlineSession {
     this.options.onConnectionStateChange('connecting', this.role);
     
     return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('Connection timeout - make sure the server is running'));
+      }, 5000);
+
       try {
         this.ws = new WebSocket(this.serverUrl);
 
         this.ws.onopen = () => {
+          console.log('WebSocket connected, sending createSession');
           this.ws!.send(JSON.stringify({ type: 'createSession' }));
         };
 
@@ -78,21 +86,27 @@ export class OnlineSession {
           if (!message) return;
 
           if (message.type === 'sessionCreated') {
-            this.sessionId = (message as any).sessionId;
+            clearTimeout(timeout);
+            this.sessionId = message.sessionId;
+            console.log('Received sessionCreated:', message.sessionId);
             this.options.onConnectionStateChange('connected', this.role);
             this.setupMessageHandler();
             resolve(this.sessionId);
           }
         };
 
-        this.ws.onerror = () => {
+        this.ws.onerror = (error) => {
+          clearTimeout(timeout);
+          console.error('WebSocket error:', error);
           reject(new Error('Failed to create session'));
         };
 
         this.ws.onclose = () => {
+          clearTimeout(timeout);
           this.options.onConnectionStateChange('disconnected', null);
         };
       } catch (err) {
+        clearTimeout(timeout);
         reject(err);
       }
     });
@@ -123,7 +137,7 @@ export class OnlineSession {
             this.setupMessageHandler();
             resolve();
           } else if (message.type === 'error') {
-            reject(new Error((message as any).message));
+            reject(new Error(message.message));
           }
         };
 

@@ -23,7 +23,7 @@ function GameBoard() {
     online,
   } = useGame();
   const { game, preferences, orientation } = state;
-  const lang = preferences.language as any;
+  const lang = preferences.language;
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Hook for AI turns

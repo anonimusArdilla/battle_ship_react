@@ -110,7 +110,7 @@ export function chooseAITarget(
   difficulty: Difficulty
 ): { target: Position; newState: AIState } {
   const config = AI_CONFIG[difficulty];
-  let newState = { ...aiState, targetQueue: [...aiState.targetQueue], hitChain: [...aiState.hitChain] };
+  const newState = { ...aiState, targetQueue: [...aiState.targetQueue], hitChain: [...aiState.hitChain] };
 
   // TARGET MODE: we have hits to follow up on
   if (newState.mode === 'target' && newState.hitChain.length > 0) {

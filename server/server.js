@@ -29,6 +29,7 @@ wss.on('connection', (ws) => {
           sessions.set(sessionId, { host: ws, guest: null });
         }
 
+        console.log(`Sending sessionCreated for ${sessionId}`);
         ws.send(JSON.stringify({
           type: 'sessionCreated',
           sessionId,

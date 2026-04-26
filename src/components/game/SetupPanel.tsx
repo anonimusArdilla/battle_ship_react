@@ -13,7 +13,7 @@ import './SetupPanel.css';
 export function SetupPanel() {
   const { state, randomizeShips, clearShips, startGame, setOrientation } = useGame();
   const { playerBoard, phase } = state.game;
-  const lang = state.preferences.language as any;
+  const lang = state.preferences.language;
   const placed = allShipsPlaced(playerBoard);
   const nextShip = getNextShipToPlace(playerBoard);
 

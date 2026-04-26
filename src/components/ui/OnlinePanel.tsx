@@ -10,7 +10,7 @@ import './SettingsPanel.css';
 
 export function OnlinePanel() {
   const { state, online } = useGame();
-  const lang = state.preferences.language as any;
+  const lang = state.preferences.language;
   const [joinCode, setJoinCode] = useState('');
   const [joining, setJoining] = useState(false);
 
