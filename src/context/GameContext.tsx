@@ -433,10 +433,15 @@ function gameReducer(state: GameContextState, action: GameAction): GameContextSt
 
     case 'RESTART': {
       const prefs = getPreferences();
+      const baseState = createInitialState();
+      const onlineState = state.preferences.gameMode === 'online'
+        ? { ...state.online, localReady: false, remoteReady: false }
+        : baseState.online;
       return {
-        ...createInitialState(),
+        ...baseState,
         preferences: prefs,
         stats: getStats(),
+        online: onlineState,
       };
     }
 
@@ -476,6 +481,7 @@ interface GameContextValue {
     sendReady: () => void;
     sendAttack: (position: Position) => void;
     disconnect: () => void;
+    resetReadyState: () => void;
   };
 }
 
@@ -548,8 +554,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const restart = useCallback(() => {
+    if (state.preferences.gameMode === 'online') {
+      onlineApi.resetReadyState();
+    }
     dispatch({ type: 'RESTART' });
-  }, []);
+  }, [onlineApi, state.preferences.gameMode]);
 
   const value: GameContextValue = {
     state,
@@ -579,6 +588,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       sendReady: onlineApi.sendReady,
       sendAttack: onlineApi.sendAttack,
       disconnect: onlineApi.disconnect,
+      resetReadyState: onlineApi.resetReadyState,
     },
   };
 

@@ -22,6 +22,7 @@ export interface OnlineApi {
   sendReady: () => void;
   sendAttack: (position: Position) => void;
   disconnect: () => void;
+  resetReadyState: () => void;
 }
 
 interface UseOnlineParams {
@@ -110,6 +111,7 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
         winner,
       });
 
+      const payloadWinner = winner === 'enemy' ? 'player' : winner === 'player' ? 'enemy' : null;
       sessionRef.current?.sendMessage({
         type: 'attackResult',
         payload: {
@@ -117,7 +119,7 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
           col: message.payload.col,
           result: result.result,
           shipId: result.sunkShipId,
-          winner: winner ?? undefined,
+          winner: payloadWinner ?? undefined,
         },
       });
       return;
@@ -229,16 +231,22 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     dispatch({ type: 'SET_ATTACKING', attacking: true });
   }, [dispatch, game, isAttacking]);
 
+  const resetReadyState = useCallback(() => {
+    setLocalReady(false);
+    setRemoteReady(false);
+    localReadyRef.current = false;
+    remoteReadyRef.current = false;
+  }, []);
+
   const disconnect = useCallback(() => {
     sessionRef.current?.dispose();
     sessionRef.current = null;
     setConnectionState('disconnected');
     setRole(null);
     setSessionId('');
-    setLocalReady(false);
-    setRemoteReady(false);
+    resetReadyState();
     setError(null);
-  }, []);
+  }, [resetReadyState]);
 
   return {
     connectionState,
@@ -252,5 +260,6 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     sendReady,
     sendAttack,
     disconnect,
+    resetReadyState,
   };
 }
