@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────
 
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import type { ChatTransport } from '../types/chat';
 import type {
   GameState, Position, Orientation,
   ShipDefinition, Difficulty, AttackEvent, Board, UserPreferences, GameStats,
@@ -483,6 +484,8 @@ interface GameContextValue {
     disconnect: () => void;
     resetReadyState: () => void;
   };
+  /** Chat transport for chat (only available when gameMode === 'online') */
+  chatTransport: ChatTransport | null;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -590,6 +593,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       disconnect: onlineApi.disconnect,
       resetReadyState: onlineApi.resetReadyState,
     },
+    chatTransport: onlineApi.chatTransport ?? null,
   };
 
   return React.createElement(GameContext.Provider, { value }, children);

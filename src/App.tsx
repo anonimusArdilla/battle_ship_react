@@ -9,6 +9,7 @@ import { SetupPanel } from './components/game/SetupPanel';
 import { GameHUD } from './components/game/GameHUD';
 import { GameOver } from './components/game/GameOver';
 import { SettingsPanel } from './components/ui/SettingsPanel';
+import { ChatContainer } from './components/chat/ChatContainer';
 import { useAI } from './hooks/useAI';
 import { t } from './i18n/translations';
 import { getNextShipToPlace } from './core/validation';
@@ -21,6 +22,7 @@ function GameBoard() {
     placeShip,
     playerAttack,
     online,
+    chatTransport,
   } = useGame();
   const { game, preferences, orientation } = state;
   const lang = preferences.language;
@@ -118,6 +120,11 @@ function GameBoard() {
         )}
 
         {/* Playing/Game Over: two grids side by side */}
+        {/* Chat panel — only when playing online */}
+        {state.preferences.gameMode === 'online' && game.phase !== 'setup' && (
+          <ChatContainer transport={chatTransport} playerName={online.role || 'You'} />
+        )}
+
         {(game.phase === 'playing' || game.phase === 'gameover') && (
           <>
             <GameHUD />

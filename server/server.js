@@ -80,7 +80,8 @@ wss.on('connection', (ws) => {
 
       // Relay game messages
       if (message.type === 'ready' || message.type === 'attack' || 
-          message.type === 'attackResult' || message.type === 'start') {
+          message.type === 'attackResult' || message.type === 'start' ||
+          message.type === 'chat') {
         if (!sessionId || !sessions.has(sessionId)) {
           ws.send(JSON.stringify({ type: 'error', message: 'Not in session' }));
           return;

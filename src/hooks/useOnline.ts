@@ -3,12 +3,13 @@
 // Manages WebSocket session state and partner communication
 // ─────────────────────────────────────────────────────────
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GameState, Position, GameMode, ConnectionStatus, PlayerId } from '../core/models';
 import type { OnlineSession as RemoteOnlineSession, OnlineMessage } from '../core/online';
 import { OnlineSession } from '../core/online';
 import { resolveAttack, allShipsSunk } from '../core/attack';
 import type { GameAction } from '../context/GameContext';
+import type { ChatTransport, ChatMessagePayload, ChatMessageReceived } from '../types/chat';
 
 export interface OnlineApi {
   connectionState: ConnectionStatus;
@@ -23,6 +24,8 @@ export interface OnlineApi {
   sendAttack: (position: Position) => void;
   disconnect: () => void;
   resetReadyState: () => void;
+  /** Chat transport adapter for useChat hook */
+  chatTransport: ChatTransport;
 }
 
 interface UseOnlineParams {
@@ -248,6 +251,25 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     setError(null);
   }, [resetReadyState]);
 
+  /**
+   * Chat transport adapter for useChat hook.
+   * Delegates to the current online session's chat methods.
+   */
+  const chatTransport: ChatTransport = useMemo(() => ({
+    connectionState,
+    sendChatMessage: (payload: ChatMessagePayload) => {
+      sessionRef.current?.sendChatMessage(payload);
+    },
+    onChatMessage: (handler: (message: ChatMessageReceived) => void) => {
+      // Ensure session exists before registering handler
+      const session = ensureSession();
+      session.onChatMessage(handler);
+    },
+    offChatMessage: (handler: (message: ChatMessageReceived) => void) => {
+      sessionRef.current?.offChatMessage(handler);
+    },
+  }), [connectionState, ensureSession]);
+
   return {
     connectionState,
     role,
@@ -261,5 +283,6 @@ export function useOnline({ gameMode, game, isAttacking, dispatch }: UseOnlinePa
     sendAttack,
     disconnect,
     resetReadyState,
+    chatTransport,
   };
 }

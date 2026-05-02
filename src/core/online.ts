@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────
 
 import type { AttackResult, PlayerId, ShipId } from './models';
+import type { ChatMessagePayload, ChatMessageReceived } from '../types/chat';
 
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
 
@@ -28,11 +29,14 @@ export type OnlineMessage =
   | { type: 'opponentDisconnected' }
   | { type: 'error'; message: string }
   | { type: 'sessionCreated'; sessionId: string }
-  | { type: 'sessionReady' };
+  | { type: 'sessionReady' }
+  | ChatMessagePayload
+  | ChatMessageReceived;
 
 export interface OnlineSessionOptions {
   onConnectionStateChange: (status: ConnectionStatus, role: 'host' | 'guest' | null) => void;
   onRemoteMessage: (message: OnlineMessage) => void;
+  onChatMessage?: (message: ChatMessageReceived) => void;
   serverUrl?: string;
 }
 
@@ -171,9 +175,15 @@ export class OnlineSession {
 
     this.ws.onmessage = (event) => {
       const message = parseMessage(event.data);
-      if (message) {
-        this.options.onRemoteMessage(message);
+      if (!message) return;
+
+      // Route chat messages to the dedicated handler if registered
+      if (message.type === 'chat' && this.options.onChatMessage) {
+        this.options.onChatMessage(message as ChatMessageReceived);
+        return;
       }
+
+      this.options.onRemoteMessage(message);
     };
 
     this.ws.onclose = () => {
@@ -186,8 +196,23 @@ export class OnlineSession {
     this.ws.send(JSON.stringify(message));
   }
 
+  /** Send a chat message through the WebSocket */
+  sendChatMessage(message: ChatMessagePayload): void {
+    this.sendMessage(message);
+  }
+
   setRemoteMessageHandler(handler: (message: OnlineMessage) => void): void {
     this.options.onRemoteMessage = handler;
+  }
+
+  /** Register a dedicated handler for incoming chat messages */
+  onChatMessage(handler: (message: ChatMessageReceived) => void): void {
+    this.options.onChatMessage = handler;
+  }
+
+  /** Remove the chat message handler */
+  offChatMessage(_handler: (message: ChatMessageReceived) => void): void {
+    this.options.onChatMessage = undefined;
   }
 
   dispose(): void {
